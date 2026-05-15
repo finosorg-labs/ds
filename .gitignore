@@ -9,6 +9,8 @@ build/**
 build-*/
 install/
 
+ds-c/**
+
 # Go
 *.test
 *.out

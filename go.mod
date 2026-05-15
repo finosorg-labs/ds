@@ -1,3 +1,3 @@
-module github.com/finos-org-labs/ds
+module github.com/finosorg-labs/ds
 
 go 1.26.1
