@@ -7,6 +7,7 @@ add_executable(ds_tests
     test_framework.c
     test_main.c
     test_ds.c
+    test_bloom_filter.c
 )
 
 # Link with ds library

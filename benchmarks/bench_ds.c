@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 /* External benchmark functions from sub-modules */
+extern void bench_bloom_filter_run(void);
 
 /* Entry point for ds benchmarks */
 void bench_ds_run(void) {
@@ -21,6 +22,7 @@ void bench_ds_run(void) {
     printf("============================================================\n");
 
     /* Run all sub-module benchmarks */
+    bench_bloom_filter_run();
 
     printf("\n");
     printf("============================================================\n");

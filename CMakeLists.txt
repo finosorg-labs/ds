@@ -61,7 +61,7 @@ endif()
 
 # DS module sources
 set(DS_SOURCES
-    ds-c/xx.c
+    ds-c/bloom_filter.c
 )
 
 # Create object library
@@ -71,6 +71,7 @@ target_include_directories(finkit_ds
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/modules/platform/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/xxhash>
         $<INSTALL_INTERFACE:include>
 )
 
@@ -78,11 +79,11 @@ target_compile_definitions(finkit_ds PRIVATE FC_STATIC_BUILD)
 
 # Set compile flags for SIMD variants based on detected level
 if(FC_SIMD_LEVEL STREQUAL "AVX512")
-    set_source_files_properties(ds-c/xxx.c PROPERTIES COMPILE_FLAGS "${FC_AVX512_FLAGS}")
+    set_source_files_properties(ds-c/bloom_filter.c PROPERTIES COMPILE_FLAGS "${FC_AVX512_FLAGS}")
 elseif(FC_SIMD_LEVEL STREQUAL "AVX2")
-    set_source_files_properties(ds-c/xxx.c PROPERTIES COMPILE_FLAGS "${FC_AVX2_FLAGS}")
+    set_source_files_properties(ds-c/bloom_filter.c PROPERTIES COMPILE_FLAGS "${FC_AVX2_FLAGS}")
 elseif(FC_SIMD_LEVEL STREQUAL "SSE42")
-    set_source_files_properties(ds-c/xxx.c PROPERTIES COMPILE_FLAGS "${FC_SSE42_FLAGS}")
+    set_source_files_properties(ds-c/bloom_filter.c PROPERTIES COMPILE_FLAGS "${FC_SSE42_FLAGS}")
 endif()
 
 # Create static library

@@ -8,11 +8,9 @@
 #ifndef FC_DS_H
 #define FC_DS_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #ifdef __cplusplus
 }

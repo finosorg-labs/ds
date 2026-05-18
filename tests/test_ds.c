@@ -9,8 +9,10 @@
 #include "test_framework.h"
 
 /* External test registration functions from sub-modules */
+extern void register_bloom_filter_tests(void);
 
 /* Entry point for ds tests */
 void register_ds_tests(void) {
     /* Register all sub-module tests */
+    register_bloom_filter_tests();
 }
