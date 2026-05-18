@@ -7,6 +7,7 @@ package ds
 import "C"
 import (
 	"errors"
+	"runtime"
 	"unsafe"
 )
 
@@ -121,13 +122,13 @@ func (bf *BloomFilter) AddBatch(data [][]byte) error {
 	ptrSlice := (*[1 << 30]unsafe.Pointer)(cPtrs)[:len(data):len(data)]
 	lenSlice := (*[1 << 30]C.size_t)(cLengths)[:len(data):len(data)]
 
-	for i, item := range data {
-		if len(item) > 0 {
-			ptrSlice[i] = unsafe.Pointer(&item[0])
+	for i := range data {
+		if len(data[i]) > 0 {
+			ptrSlice[i] = unsafe.Pointer(&data[i][0])
 		} else {
 			ptrSlice[i] = nil
 		}
-		lenSlice[i] = C.size_t(len(item))
+		lenSlice[i] = C.size_t(len(data[i]))
 	}
 
 	err := C.fc_bloom_add_batch(
@@ -136,6 +137,9 @@ func (bf *BloomFilter) AddBatch(data [][]byte) error {
 		(*C.size_t)(cLengths),
 		C.size_t(len(data)),
 	)
+
+	// Keep data alive until after C call completes
+	runtime.KeepAlive(data)
 
 	if err != C.FC_OK {
 		return errors.New("failed to add batch")
@@ -193,13 +197,13 @@ func (bf *BloomFilter) ContainsBatch(data [][]byte) ([]bool, error) {
 	ptrSlice := (*[1 << 30]unsafe.Pointer)(cPtrs)[:len(data):len(data)]
 	lenSlice := (*[1 << 30]C.size_t)(cLengths)[:len(data):len(data)]
 
-	for i, item := range data {
-		if len(item) > 0 {
-			ptrSlice[i] = unsafe.Pointer(&item[0])
+	for i := range data {
+		if len(data[i]) > 0 {
+			ptrSlice[i] = unsafe.Pointer(&data[i][0])
 		} else {
 			ptrSlice[i] = nil
 		}
-		lenSlice[i] = C.size_t(len(item))
+		lenSlice[i] = C.size_t(len(data[i]))
 	}
 
 	err := C.fc_bloom_contains_batch(
@@ -209,6 +213,9 @@ func (bf *BloomFilter) ContainsBatch(data [][]byte) ([]bool, error) {
 		C.size_t(len(data)),
 		(*C.bool)(cResults),
 	)
+
+	// Keep data alive until after C call completes
+	runtime.KeepAlive(data)
 
 	if err != C.FC_OK {
 		return nil, errors.New("failed to check batch")
