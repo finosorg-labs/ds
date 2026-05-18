@@ -17,6 +17,7 @@ package ds
 #cgo LDFLAGS: -lm
 
 #include "bloom_filter.h"
+#include "roaring_bitmap.h"
 
 // Platform sources
 #include "modules/platform/src/simd_detect.c"
@@ -24,5 +25,6 @@ package ds
 
 // DS sources
 #include "bloom_filter.c"
+#include "roaring_bitmap.c"
 */
 import "C"

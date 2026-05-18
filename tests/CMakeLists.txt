@@ -8,6 +8,7 @@ add_executable(ds_tests
     test_main.c
     test_ds.c
     test_bloom_filter.c
+    test_roaring_bitmap.c
 )
 
 # Link with ds library

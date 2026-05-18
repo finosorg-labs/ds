@@ -62,6 +62,7 @@ endif()
 # DS module sources
 set(DS_SOURCES
     ds-c/bloom_filter.c
+    ds-c/roaring_bitmap.c
 )
 
 # Create object library
