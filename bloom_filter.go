@@ -138,8 +138,10 @@ func (bf *BloomFilter) AddBatch(data [][]byte) error {
 		C.size_t(len(data)),
 	)
 
-	// Keep data alive until after C call completes
-	runtime.KeepAlive(data)
+	// Keep all data slices alive until after C call completes
+	for i := range data {
+		runtime.KeepAlive(data[i])
+	}
 
 	if err != C.FC_OK {
 		return errors.New("failed to add batch")
@@ -214,8 +216,10 @@ func (bf *BloomFilter) ContainsBatch(data [][]byte) ([]bool, error) {
 		(*C.bool)(cResults),
 	)
 
-	// Keep data alive until after C call completes
-	runtime.KeepAlive(data)
+	// Keep all data slices alive until after C call completes
+	for i := range data {
+		runtime.KeepAlive(data[i])
+	}
 
 	if err != C.FC_OK {
 		return nil, errors.New("failed to check batch")
