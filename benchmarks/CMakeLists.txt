@@ -25,6 +25,7 @@ add_executable(ds_benchmarks
     bench_ds.c
     bench_bloom_filter.c
     bench_roaring_bitmap.c
+    bench_ring_buffer.c
 )
 
 # Link with benchmark framework and ds library
