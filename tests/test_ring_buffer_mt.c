@@ -1,10 +1,16 @@
 /**
  * @file test_ring_buffer_mt.c
  * @brief Multi-threaded tests for Lock-Free Ring Buffer
+ *
+ * These tests only run when FC_RING_BUFFER_LOCKFREE is defined.
+ * Single-threaded implementation requires external synchronization.
  */
 
 #include "test_framework.h"
 #include <ring_buffer.h>
+
+#ifdef FC_RING_BUFFER_LOCKFREE
+
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
@@ -166,8 +172,15 @@ TEST(test_ring_buffer_spsc_batch_concurrent) {
     fc_ring_buffer_destroy(rb);
 }
 
+#endif /* FC_RING_BUFFER_LOCKFREE */
+
 void register_ring_buffer_mt_tests(void) {
+#ifdef FC_RING_BUFFER_LOCKFREE
     RUN_TEST(test_ring_buffer_spsc_concurrent);
     RUN_TEST(test_ring_buffer_spsc_stress);
     RUN_TEST(test_ring_buffer_spsc_batch_concurrent);
+#else
+    // Multi-threaded tests skipped for single-threaded implementation
+    // Use lock-free build: cmake -DFC_RING_BUFFER_LOCKFREE=ON
+#endif
 }

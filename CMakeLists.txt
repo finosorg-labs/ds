@@ -59,6 +59,9 @@ if(NOT TARGET finkit::platform)
     add_library(finkit::platform ALIAS finkit_platform_static)
 endif()
 
+# Ring buffer implementation selection
+option(FC_RING_BUFFER_LOCKFREE "Use lock-free SPSC ring buffer implementation" OFF)
+
 # DS module sources
 set(DS_SOURCES
     ds-c/bloom_filter.c
@@ -78,6 +81,14 @@ target_include_directories(finkit_ds
 )
 
 target_compile_definitions(finkit_ds PRIVATE FC_STATIC_BUILD)
+
+# Add ring buffer implementation flag
+if(FC_RING_BUFFER_LOCKFREE)
+    target_compile_definitions(finkit_ds PUBLIC FC_RING_BUFFER_LOCKFREE)
+    message(STATUS "Ring Buffer: Lock-free SPSC implementation")
+else()
+    message(STATUS "Ring Buffer: Single-threaded implementation (default)")
+endif()
 
 # Set compile flags for SIMD variants based on detected level
 if(FC_SIMD_LEVEL STREQUAL "AVX512")
@@ -166,5 +177,6 @@ message(STATUS "============================================================")
 message(STATUS "  C Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 message(STATUS "  Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "  System: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "  Ring Buffer: ${FC_RING_BUFFER_IMPL}")
 message(STATUS "============================================================")
 message(STATUS "")
