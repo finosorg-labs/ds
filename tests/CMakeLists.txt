@@ -10,6 +10,7 @@ add_executable(ds_tests
     test_bloom_filter.c
     test_roaring_bitmap.c
     test_ring_buffer.c
+    test_ring_buffer_mt.c
 )
 
 # Link with ds library
@@ -17,6 +18,7 @@ target_link_libraries(ds_tests
     PRIVATE
         finkit_ds_static
         m
+        pthread
 )
 
 target_compile_definitions(ds_tests PRIVATE

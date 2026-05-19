@@ -1,6 +1,7 @@
 #ifndef FC_RING_BUFFER_H
 #define FC_RING_BUFFER_H
 
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -12,15 +13,37 @@ extern "C" {
 /**
  * @brief Ring buffer structure for efficient sliding window operations
  *
- * A lock-free ring buffer implementation optimized for single-producer
- * single-consumer scenarios. Capacity is always a power of 2 for efficient
+ * A lock-free ring buffer implementation for single-producer single-consumer
+ * scenarios using C11 atomics. Capacity is always a power of 2 for efficient
  * modulo operations using bitwise AND.
+ *
+ * Thread safety:
+ * - One producer thread can safely call push operations
+ * - One consumer thread can safely call pop operations
+ * - Query operations (size, get, is_empty, is_full) are safe from any thread
+ * - Multiple producers or multiple consumers require external synchronization
+ *
+ * Memory ordering:
+ * - Producer uses release semantics to ensure data visibility
+ * - Consumer uses acquire semantics to observe producer's writes
+ * - Prevents reordering and ensures cache coherency
  */
 typedef struct {
     double* data;    /**< Aligned data array */
     size_t capacity; /**< Capacity (power of 2) */
-    size_t head;     /**< Write position */
-    size_t count;    /**< Current element count */
+
+    /* Cache line padding to prevent false sharing */
+    char _pad0[64 - sizeof(double*) - sizeof(size_t)];
+
+    _Atomic size_t head; /**< Write position (producer only) */
+
+    /* Cache line padding */
+    char _pad1[64 - sizeof(_Atomic size_t)];
+
+    _Atomic size_t tail; /**< Read position (consumer only) */
+
+    /* Cache line padding */
+    char _pad2[64 - sizeof(_Atomic size_t)];
 } fc_ring_buffer_t;
 
 /**
@@ -55,7 +78,8 @@ void fc_ring_buffer_destroy(fc_ring_buffer_t* rb);
  * @return true on success, false if rb is NULL
  *
  * Time complexity: O(1)
- * Thread safety: Single-producer safe
+ * Thread safety: Lock-free for single producer (uses release semantics)
+ * Memory ordering: Ensures data is visible to consumer before updating head
  */
 bool fc_ring_buffer_push(fc_ring_buffer_t* rb, double value);
 
@@ -82,7 +106,8 @@ size_t fc_ring_buffer_push_batch(fc_ring_buffer_t* rb, const double* values, siz
  * @return true if element was popped, false if buffer is empty or rb/out is NULL
  *
  * Time complexity: O(1)
- * Thread safety: Single-consumer safe
+ * Thread safety: Lock-free for single consumer (uses acquire semantics)
+ * Memory ordering: Ensures consumer sees producer's data writes
  */
 bool fc_ring_buffer_pop(fc_ring_buffer_t* rb, double* out);
 
@@ -131,7 +156,8 @@ size_t fc_ring_buffer_get_all(const fc_ring_buffer_t* rb, double* out);
  * @return Number of elements, or 0 if rb is NULL
  *
  * Time complexity: O(1)
- * Thread safety: Read-only, safe with single writer
+ * Thread safety: Lock-free, safe from any thread (uses relaxed semantics)
+ * Note: Result is a snapshot and may be stale immediately after return
  */
 size_t fc_ring_buffer_size(const fc_ring_buffer_t* rb);
 
