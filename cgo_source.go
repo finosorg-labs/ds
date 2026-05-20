@@ -20,6 +20,7 @@ package ds
 #include "roaring_bitmap.h"
 #include "ring_buffer.h"
 #include "mem_pool.h"
+#include "arena.h"
 
 // Platform sources
 #include "modules/platform/src/simd_detect.c"
@@ -30,5 +31,6 @@ package ds
 #include "roaring_bitmap.c"
 #include "ring_buffer.c"
 #include "mem_pool.c"
+#include "arena.c"
 */
 import "C"
