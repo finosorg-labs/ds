@@ -27,6 +27,7 @@ add_executable(ds_benchmarks
     bench_roaring_bitmap.c
     bench_ring_buffer.c
     bench_mem_pool.c
+    bench_arena.c
 )
 
 # Link with benchmark framework and ds library

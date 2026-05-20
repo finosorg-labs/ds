@@ -12,6 +12,7 @@ add_executable(ds_tests
     test_ring_buffer.c
     test_ring_buffer_mt.c
     test_mem_pool.c
+    test_arena.c
 )
 
 # Link with ds library
