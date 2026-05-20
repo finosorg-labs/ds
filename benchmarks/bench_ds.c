@@ -14,6 +14,7 @@
 extern void bench_bloom_filter_run(void);
 extern void bench_roaring_bitmap_run(void);
 extern void bench_ring_buffer_run(void);
+extern void bench_mem_pool_run(void);
 
 /* Entry point for ds benchmarks */
 void bench_ds_run(void) {
@@ -27,6 +28,7 @@ void bench_ds_run(void) {
     bench_bloom_filter_run();
     bench_roaring_bitmap_run();
     bench_ring_buffer_run();
+    bench_mem_pool_run();
 
     printf("\n");
     printf("============================================================\n");
