@@ -111,37 +111,33 @@ func (bf *BloomFilter) AddBatch(data [][]byte) error {
 		return nil
 	}
 
-	// Allocate C arrays
-	cPtrs := C.malloc(C.size_t(len(data)) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	defer C.free(cPtrs)
+	// Use Go slices and pin them to satisfy CGO pointer rules
+	ptrs := make([]unsafe.Pointer, len(data))
+	lengths := make([]C.size_t, len(data))
 
-	cLengths := C.malloc(C.size_t(len(data)) * C.size_t(unsafe.Sizeof(C.size_t(0))))
-	defer C.free(cLengths)
+	// Pin the slices to prevent GC from moving them
+	var pinner runtime.Pinner
+	defer pinner.Unpin()
 
-	// Fill arrays
-	ptrSlice := (*[1 << 30]unsafe.Pointer)(cPtrs)[:len(data):len(data)]
-	lenSlice := (*[1 << 30]C.size_t)(cLengths)[:len(data):len(data)]
+	pinner.Pin(&ptrs[0])
+	pinner.Pin(&lengths[0])
 
 	for i := range data {
 		if len(data[i]) > 0 {
-			ptrSlice[i] = unsafe.Pointer(&data[i][0])
+			ptrs[i] = unsafe.Pointer(&data[i][0])
+			pinner.Pin(&data[i][0])
 		} else {
-			ptrSlice[i] = nil
+			ptrs[i] = nil
 		}
-		lenSlice[i] = C.size_t(len(data[i]))
+		lengths[i] = C.size_t(len(data[i]))
 	}
 
 	err := C.fc_bloom_add_batch(
 		bf.filter,
-		(*unsafe.Pointer)(cPtrs),
-		(*C.size_t)(cLengths),
+		(*unsafe.Pointer)(&ptrs[0]),
+		(*C.size_t)(&lengths[0]),
 		C.size_t(len(data)),
 	)
-
-	// Keep all data slices alive until after C call completes
-	for i := range data {
-		runtime.KeepAlive(data[i])
-	}
 
 	if err != C.FC_OK {
 		return errors.New("failed to add batch")
@@ -185,54 +181,48 @@ func (bf *BloomFilter) ContainsBatch(data [][]byte) ([]bool, error) {
 		return []bool{}, nil
 	}
 
-	// Allocate C arrays
-	cPtrs := C.malloc(C.size_t(len(data)) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	defer C.free(cPtrs)
+	// Use Go slices and pin them to satisfy CGO pointer rules
+	ptrs := make([]unsafe.Pointer, len(data))
+	lengths := make([]C.size_t, len(data))
+	results := make([]C.bool, len(data))
 
-	cLengths := C.malloc(C.size_t(len(data)) * C.size_t(unsafe.Sizeof(C.size_t(0))))
-	defer C.free(cLengths)
+	// Pin the slices to prevent GC from moving them
+	var pinner runtime.Pinner
+	defer pinner.Unpin()
 
-	cResults := C.malloc(C.size_t(len(data)) * C.size_t(unsafe.Sizeof(C.bool(false))))
-	defer C.free(cResults)
-
-	// Fill arrays
-	ptrSlice := (*[1 << 30]unsafe.Pointer)(cPtrs)[:len(data):len(data)]
-	lenSlice := (*[1 << 30]C.size_t)(cLengths)[:len(data):len(data)]
+	pinner.Pin(&ptrs[0])
+	pinner.Pin(&lengths[0])
+	pinner.Pin(&results[0])
 
 	for i := range data {
 		if len(data[i]) > 0 {
-			ptrSlice[i] = unsafe.Pointer(&data[i][0])
+			ptrs[i] = unsafe.Pointer(&data[i][0])
+			pinner.Pin(&data[i][0])
 		} else {
-			ptrSlice[i] = nil
+			ptrs[i] = nil
 		}
-		lenSlice[i] = C.size_t(len(data[i]))
+		lengths[i] = C.size_t(len(data[i]))
 	}
 
 	err := C.fc_bloom_contains_batch(
 		bf.filter,
-		(*unsafe.Pointer)(cPtrs),
-		(*C.size_t)(cLengths),
+		(*unsafe.Pointer)(&ptrs[0]),
+		(*C.size_t)(&lengths[0]),
 		C.size_t(len(data)),
-		(*C.bool)(cResults),
+		(*C.bool)(&results[0]),
 	)
-
-	// Keep all data slices alive until after C call completes
-	for i := range data {
-		runtime.KeepAlive(data[i])
-	}
 
 	if err != C.FC_OK {
 		return nil, errors.New("failed to check batch")
 	}
 
-	// Copy results
-	resultSlice := (*[1 << 30]C.bool)(cResults)[:len(data):len(data)]
-	results := make([]bool, len(data))
+	// Convert results
+	goResults := make([]bool, len(data))
 	for i := range results {
-		results[i] = bool(resultSlice[i])
+		goResults[i] = bool(results[i])
 	}
 
-	return results, nil
+	return goResults, nil
 }
 
 // Clear removes all elements from the Bloom filter.

@@ -117,8 +117,8 @@ target_include_directories(finkit_ds_static
         $<INSTALL_INTERFACE:include>
 )
 
-# Link platform and math library
-target_link_libraries(finkit_ds_static PUBLIC finkit::platform m)
+# Link platform, math library, and atomic library (for 128-bit CAS)
+target_link_libraries(finkit_ds_static PUBLIC finkit::platform m atomic)
 
 # Create alias
 add_library(finkit::ds ALIAS finkit_ds_static)

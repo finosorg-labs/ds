@@ -14,11 +14,12 @@ package ds
 #cgo CFLAGS: -mavx2 -mfma -O2 -Wall -std=c11
 #cgo darwin CFLAGS: -D_DARWIN_C_SOURCE
 #cgo linux CFLAGS: -D_POSIX_C_SOURCE=200112L
-#cgo LDFLAGS: -lm
+#cgo LDFLAGS: -lm -latomic
 
 #include "bloom_filter.h"
 #include "roaring_bitmap.h"
 #include "ring_buffer.h"
+#include "mem_pool.h"
 
 // Platform sources
 #include "modules/platform/src/simd_detect.c"
@@ -28,5 +29,6 @@ package ds
 #include "bloom_filter.c"
 #include "roaring_bitmap.c"
 #include "ring_buffer.c"
+#include "mem_pool.c"
 */
 import "C"
