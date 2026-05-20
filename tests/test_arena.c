@@ -180,6 +180,18 @@ TEST(test_arena_large_allocation) {
     fc_arena_destroy(arena);
 }
 
+TEST(test_arena_buffer_alignment) {
+    fc_arena_t* arena = fc_arena_create(1024);
+    ASSERT_NOT_NULL(arena);
+
+    // First allocation should be 64-byte aligned (buffer is 64-byte aligned)
+    void* ptr = fc_arena_alloc(arena, 1);
+    ASSERT_NOT_NULL(ptr);
+    FC_TEST_ASSERT(((uintptr_t)ptr & 63) == 0);
+
+    fc_arena_destroy(arena);
+}
+
 void register_arena_tests(void) {
     RUN_TEST(test_arena_create_destroy);
     RUN_TEST(test_arena_create_invalid);
@@ -192,4 +204,5 @@ void register_arena_tests(void) {
     RUN_TEST(test_arena_multiple_types);
     RUN_TEST(test_arena_null_checks);
     RUN_TEST(test_arena_large_allocation);
+    RUN_TEST(test_arena_buffer_alignment);
 }
