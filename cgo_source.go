@@ -19,6 +19,7 @@ package ds
 #include "bloom_filter.h"
 #include "roaring_bitmap.h"
 #include "ring_buffer.h"
+#include "generic_ring_buffer.h"
 #include "mem_pool.h"
 #include "arena.h"
 
@@ -30,6 +31,7 @@ package ds
 #include "bloom_filter.c"
 #include "roaring_bitmap.c"
 #include "ring_buffer.c"
+#include "generic_ring_buffer.c"
 #include "mem_pool.c"
 #include "arena.c"
 */

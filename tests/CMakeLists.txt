@@ -11,6 +11,7 @@ add_executable(ds_tests
     test_roaring_bitmap.c
     test_ring_buffer.c
     test_ring_buffer_mt.c
+    test_generic_ring_buffer.c
     test_mem_pool.c
     test_arena.c
 )
