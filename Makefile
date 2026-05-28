@@ -129,7 +129,7 @@ test: linux
 	@bash scripts/test_coverage.sh $(LINUX_BUILD_DIR)
 	@echo ""
 	@echo "==> Running Go tests"
-	@FC_BUILD_MODE=source CGO_CFLAGS_ALLOW="-mavx.*|-msse.*|-mfma|-mavx512.*" go test ./... -v
+	@FC_BUILD_MODE=source CGO_CFLAGS_ALLOW="-mavx.*|-msse.*|-mfma|-mavx512.*" go test -vet=all -race -parallel=4 -v ./...
 
 bench:
 	@echo "==> Building benchmarks (Release mode)"
