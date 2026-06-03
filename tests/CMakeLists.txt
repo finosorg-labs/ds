@@ -19,8 +19,10 @@ add_executable(ds_tests
 # Link with ds library
 target_link_libraries(ds_tests
     PRIVATE
-        finkit_ds_static
+        finkit_ds_static_base
+        finkit::platform
         m
+        atomic
         pthread
 )
 

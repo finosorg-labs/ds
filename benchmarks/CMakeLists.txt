@@ -16,7 +16,8 @@ target_include_directories(bench_framework
 
 target_link_libraries(bench_framework
     PUBLIC
-        finkit_ds_static
+        finkit_ds_static_base
+        finkit::platform
 )
 
 # Benchmark executable
@@ -35,8 +36,10 @@ add_executable(ds_benchmarks
 target_link_libraries(ds_benchmarks
     PRIVATE
         bench_framework
-        finkit_ds_static
+        finkit_ds_static_base
+        finkit::platform
         m
+        atomic
 )
 
 target_compile_definitions(ds_benchmarks PRIVATE
