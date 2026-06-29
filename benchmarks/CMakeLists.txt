@@ -30,6 +30,7 @@ add_executable(ds_benchmarks
     bench_generic_ring_buffer.c
     bench_mem_pool.c
     bench_arena.c
+    bench_spsc.c
 )
 
 # Link with benchmark framework and ds library

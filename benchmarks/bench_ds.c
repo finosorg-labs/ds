@@ -17,6 +17,7 @@ extern void bench_ring_buffer_run(void);
 extern void bench_generic_ring_buffer_run(void);
 extern void bench_mem_pool_run(void);
 extern void bench_arena_run(void);
+extern void bench_spsc_run(void);
 
 /* Entry point for ds benchmarks */
 void bench_ds_run(void) {
@@ -33,6 +34,7 @@ void bench_ds_run(void) {
     bench_generic_ring_buffer_run();
     bench_mem_pool_run();
     bench_arena_run();
+    bench_spsc_run();
 
     printf("\n");
     printf("============================================================\n");
