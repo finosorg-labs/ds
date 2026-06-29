@@ -31,6 +31,7 @@ add_executable(ds_benchmarks
     bench_mem_pool.c
     bench_arena.c
     bench_spsc.c
+    bench_spsc_shm.c
 )
 
 # Link with benchmark framework and ds library

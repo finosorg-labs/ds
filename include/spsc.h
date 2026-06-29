@@ -34,9 +34,12 @@
 FC_BEGIN_DECLS
 
 /**
- * @brief SPSC-specific error code for non-blocking operations
+ * @brief SPSC-specific status codes (extends fc_status_t range)
+ *
+ * Note: These values are outside the standard fc_status_t enum range.
+ * Cast to int when strict type checking is required.
  */
-#define FC_ERR_WOULD_BLOCK ((fc_status_t) - 20)
+#define FC_ERR_WOULD_BLOCK (-20)
 
 /**
  * @brief SPSC ring buffer handle

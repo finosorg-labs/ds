@@ -15,6 +15,7 @@ add_executable(ds_tests
     test_mem_pool.c
     test_arena.c
     test_spsc.c
+    test_spsc_shm.c
 )
 
 # Link with ds library
