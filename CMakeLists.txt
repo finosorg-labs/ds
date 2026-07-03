@@ -74,6 +74,15 @@ set(DS_SOURCES
     ds-c/spsc-c/spsc_shm.c
 )
 
+# Copy dependency headers to a separate installed-headers directory for distribution
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/installed-headers)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/installed-headers/
+     FILES_MATCHING PATTERN "*.h")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/modules/platform/include/
+     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/installed-headers/
+     FILES_MATCHING PATTERN "*.h")
+
 # Create object library
 add_library(finkit_ds OBJECT ${DS_SOURCES})
 
@@ -218,7 +227,8 @@ install(FILES ${MERGED_LIB_PATH}
     DESTINATION lib
 )
 
-install(DIRECTORY include/
+# Install self-contained headers (includes all dependencies)
+install(DIRECTORY installed-headers/
     DESTINATION include/ds
     FILES_MATCHING PATTERN "*.h"
 )
