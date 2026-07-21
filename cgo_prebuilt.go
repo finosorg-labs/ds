@@ -6,7 +6,8 @@
 package ds
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/include -I${SRCDIR}/modules/platform/include
+#cgo CFLAGS: -I${SRCDIR}/include
+#cgo CFLAGS: -I${SRCDIR}/modules/platform/include
 #cgo linux,amd64   LDFLAGS: -L${SRCDIR}/build/linux_amd64 -lfinkit_ds_static -lm
 #cgo linux,arm64   LDFLAGS: -L${SRCDIR}/build/linux_arm64 -lfinkit_ds_static -lm
 #cgo darwin,amd64  LDFLAGS: -L${SRCDIR}/build/darwin_amd64 -lfinkit_ds_static -lm

@@ -16,6 +16,11 @@ package ds
 #cgo linux CFLAGS: -D_POSIX_C_SOURCE=200112L
 #cgo LDFLAGS: -lm -latomic
 
+#cgo linux LDFLAGS: ${SRCDIR}/modules/platform/build/linux_amd64/libfinkit_platform_static.a -lm -lgcov
+#cgo darwin,arm64 LDFLAGS: ${SRCDIR}/modules/platform/build/darwin_arm64/libfinkit_platform_static.a -lm -lgcov
+#cgo darwin,amd64 LDFLAGS: ${SRCDIR}/modules/platform/build/darwin_x86_64/libfinkit_platform_static.a -lm -lgcov
+#cgo windows LDFLAGS: ${SRCDIR}/modules/platform/build/windows_amd64/libfinkit_platform_static.a -lm -lgcov
+
 #include "bloom_filter.h"
 #include "roaring_bitmap.h"
 #include "ring_buffer.h"
@@ -23,9 +28,6 @@ package ds
 #include "mem_pool.h"
 #include "arena.h"
 
-// Platform sources
-#include "modules/platform/src/simd_detect.c"
-#include "modules/platform/src/mem_aligned.c"
 
 // DS sources
 #include "bloom_filter.c"
