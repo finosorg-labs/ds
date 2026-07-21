@@ -18,11 +18,10 @@ add_executable(ds_tests
     test_spsc_shm.c
 )
 
-# Link with ds library
+# Link with merged ds library (includes all dependencies)
 target_link_libraries(ds_tests
     PRIVATE
-        finkit_ds_static_base
-        finkit::platform
+        finkit_ds_static_interface
         m
         atomic
         pthread

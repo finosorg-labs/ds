@@ -14,12 +14,6 @@ target_include_directories(bench_framework
         ${CMAKE_SOURCE_DIR}/modules/platform/include
 )
 
-target_link_libraries(bench_framework
-    PUBLIC
-        finkit_ds_static_base
-        finkit::platform
-)
-
 # Benchmark executable
 add_executable(ds_benchmarks
     bench_main.c
@@ -34,12 +28,11 @@ add_executable(ds_benchmarks
     bench_spsc_shm.c
 )
 
-# Link with benchmark framework and ds library
+# Link with benchmark framework and merged ds library
 target_link_libraries(ds_benchmarks
     PRIVATE
         bench_framework
-        finkit_ds_static_base
-        finkit::platform
+        finkit_ds_static_interface
         m
         atomic
 )
