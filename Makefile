@@ -126,7 +126,7 @@ bench:
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DFC_BUILD_TESTS=OFF \
-		-DFC_BUILD_BENCHMARKS=ON \
+		-DFC_BUILD_BENCHMARKS=ON
 	@$(CMAKE) --build $(LINUX_BUILD_DIR) --parallel
 	@echo "==> Running C benchmarks"
 	@if [ -f $(LINUX_BUILD_DIR)/benchmarks/ds_benchmarks ]; then \

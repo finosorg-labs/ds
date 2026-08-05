@@ -16,6 +16,7 @@ extern void register_ring_buffer_mt_tests(void);
 extern void register_generic_ring_buffer_tests(void);
 extern void register_mem_pool_tests(void);
 extern void register_arena_tests(void);
+extern void test_priority_queue_register(void);
 extern void register_spsc_tests(void);
 extern void register_spsc_shm_tests(void);
 
@@ -29,6 +30,7 @@ void register_ds_tests(void) {
     register_generic_ring_buffer_tests();
     register_mem_pool_tests();
     register_arena_tests();
+    test_priority_queue_register();
     register_spsc_tests();
     register_spsc_shm_tests();
 }

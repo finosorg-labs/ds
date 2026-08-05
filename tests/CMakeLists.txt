@@ -14,6 +14,7 @@ add_executable(ds_tests
     test_generic_ring_buffer.c
     test_mem_pool.c
     test_arena.c
+    test_priority_queue.c
     test_spsc.c
     test_spsc_shm.c
 )

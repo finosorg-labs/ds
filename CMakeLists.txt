@@ -42,6 +42,7 @@ set(DS_SOURCES
     ds-c/generic_ring_buffer.c
     ds-c/mem_pool.c
     ds-c/arena.c
+    ds-c/priority_queue.c
     ds-c/spsc-c/spsc.c
     ds-c/spsc-c/spsc_shm.c
 )

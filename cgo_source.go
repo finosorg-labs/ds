@@ -27,6 +27,7 @@ package ds
 #include "generic_ring_buffer.h"
 #include "mem_pool.h"
 #include "arena.h"
+#include "priority_queue.h"
 
 
 // DS sources
@@ -36,5 +37,6 @@ package ds
 #include "generic_ring_buffer.c"
 #include "mem_pool.c"
 #include "arena.c"
+#include "priority_queue.c"
 */
 import "C"
