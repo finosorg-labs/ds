@@ -163,6 +163,26 @@ bool fc_priority_queue_is_full(const fc_priority_queue_t* pq);
 void fc_priority_queue_clear(fc_priority_queue_t* pq);
 
 /**
+ * @brief Insert multiple elements into the priority queue
+ *
+ * More efficient than inserting elements one by one when batch size is large.
+ * Uses heapify for batches >= 32 elements, otherwise inserts individually.
+ *
+ * @param pq Priority queue
+ * @param elements Array of elements to insert
+ * @param n Number of elements to insert
+ * @return Number of elements successfully inserted, 0 if pq/elements is NULL
+ *
+ * Time complexity: O(n) for heapify, O(n log m) for individual inserts
+ * Thread safety: Requires external synchronization
+ */
+size_t fc_priority_queue_insert_batch(
+    fc_priority_queue_t* pq,
+    const fc_pq_element_t* elements,
+    size_t n
+);
+
+/**
  * @brief Build a heap from an array of elements
  *
  * More efficient than inserting elements one by one.
@@ -176,6 +196,21 @@ void fc_priority_queue_clear(fc_priority_queue_t* pq);
  * Thread safety: Not thread-safe
  */
 bool fc_priority_queue_heapify(fc_priority_queue_t* pq, const fc_pq_element_t* elements, size_t n);
+
+/**
+ * @brief Resize the priority queue capacity
+ *
+ * Creates a new buffer with the specified capacity and copies existing elements.
+ * If new capacity is smaller than current size, only keeps the highest priority elements.
+ *
+ * @param pq Priority queue
+ * @param new_capacity New capacity (must be > 0)
+ * @return true on success, false if pq is NULL, new_capacity is 0, or allocation fails
+ *
+ * Time complexity: O(n) for copy, O(n) for re-heapify if shrinking
+ * Thread safety: Not thread-safe
+ */
+bool fc_priority_queue_resize(fc_priority_queue_t* pq, size_t new_capacity);
 
 #ifdef __cplusplus
 }

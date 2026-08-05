@@ -20,10 +20,11 @@ var (
 // PriorityQueue is a binary heap-based priority queue where higher values have higher priority.
 // The highest priority element is always at the root and can be accessed in O(1) time.
 type PriorityQueue struct {
-	ptr     *C.fc_priority_queue_t
-	dataMap map[uintptr]interface{}
-	nextID  uintptr
-	mu      sync.Mutex
+	ptr      *C.fc_priority_queue_t
+	dataSlice []interface{}  // Use slice instead of map for better performance
+	freeIDs   []uintptr      // Recycle freed IDs
+	nextID    uintptr
+	mu        sync.Mutex
 }
 
 // Element represents a priority queue element with a priority and associated data.
@@ -44,9 +45,10 @@ func NewPriorityQueue(capacity int) (*PriorityQueue, error) {
 	}
 
 	return &PriorityQueue{
-		ptr:     ptr,
-		dataMap: make(map[uintptr]interface{}),
-		nextID:  1,
+		ptr:       ptr,
+		dataSlice: make([]interface{}, 0, capacity),
+		freeIDs:   make([]uintptr, 0, 32),
+		nextID:    0,
 	}, nil
 }
 
@@ -56,7 +58,35 @@ func (pq *PriorityQueue) Destroy() {
 	if pq.ptr != nil {
 		C.fc_priority_queue_destroy(pq.ptr)
 		pq.ptr = nil
-		pq.dataMap = nil
+		pq.dataSlice = nil
+		pq.freeIDs = nil
+	}
+}
+
+// allocID allocates a new ID, reusing freed IDs when possible
+func (pq *PriorityQueue) allocID(data interface{}) uintptr {
+	var id uintptr
+
+	// Try to reuse a freed ID first
+	if len(pq.freeIDs) > 0 {
+		id = pq.freeIDs[len(pq.freeIDs)-1]
+		pq.freeIDs = pq.freeIDs[:len(pq.freeIDs)-1]
+		pq.dataSlice[id] = data
+	} else {
+		// Allocate new ID
+		id = pq.nextID
+		pq.nextID++
+		pq.dataSlice = append(pq.dataSlice, data)
+	}
+
+	return id
+}
+
+// freeID marks an ID as available for reuse
+func (pq *PriorityQueue) freeID(id uintptr) {
+	if id < uintptr(len(pq.dataSlice)) {
+		pq.dataSlice[id] = nil
+		pq.freeIDs = append(pq.freeIDs, id)
 	}
 }
 
@@ -69,9 +99,7 @@ func (pq *PriorityQueue) Insert(priority float64, data interface{}) error {
 	}
 
 	pq.mu.Lock()
-	id := pq.nextID
-	pq.nextID++
-	pq.dataMap[id] = data
+	id := pq.allocID(data)
 	pq.mu.Unlock()
 
 	// Store the ID as a pointer value (not dereferencing, just as an opaque handle)
@@ -81,7 +109,7 @@ func (pq *PriorityQueue) Insert(priority float64, data interface{}) error {
 
 	if !C.fc_priority_queue_insert(pq.ptr, C.double(priority), idPtr) {
 		pq.mu.Lock()
-		delete(pq.dataMap, id)
+		pq.freeID(id)
 		pq.mu.Unlock()
 		return ErrQueueFull
 	}
@@ -104,8 +132,11 @@ func (pq *PriorityQueue) Pop() (*Element, error) {
 
 	id := uintptr(data)
 	pq.mu.Lock()
-	goData := pq.dataMap[id]
-	delete(pq.dataMap, id)
+	var goData interface{}
+	if id < uintptr(len(pq.dataSlice)) {
+		goData = pq.dataSlice[id]
+	}
+	pq.freeID(id)
 	pq.mu.Unlock()
 
 	return &Element{
@@ -129,7 +160,10 @@ func (pq *PriorityQueue) Peek() (*Element, error) {
 
 	id := uintptr(data)
 	pq.mu.Lock()
-	goData := pq.dataMap[id]
+	var goData interface{}
+	if id < uintptr(len(pq.dataSlice)) {
+		goData = pq.dataSlice[id]
+	}
 	pq.mu.Unlock()
 
 	return &Element{
@@ -175,7 +209,13 @@ func (pq *PriorityQueue) Clear() {
 	if pq.ptr != nil {
 		C.fc_priority_queue_clear(pq.ptr)
 		pq.mu.Lock()
-		pq.dataMap = make(map[uintptr]interface{})
+		// Reset data tracking
+		for i := range pq.dataSlice {
+			pq.dataSlice[i] = nil
+		}
+		pq.dataSlice = pq.dataSlice[:0]
+		pq.freeIDs = pq.freeIDs[:0]
+		pq.nextID = 0
 		pq.mu.Unlock()
 	}
 }
